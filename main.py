@@ -6,6 +6,7 @@ import os
 import wandb
 import hydra
 from omegaconf import DictConfig
+from src.basic_cleaning import run
 
 _steps = [
     "download",
@@ -51,10 +52,19 @@ def go(config: DictConfig):
             )
 
         if "basic_cleaning" in active_steps:
-            ##################
-            # Implement here #
-            ##################
-            pass
+            _ = mlflow.run(
+                "https://github.com/drakebaylor/Project-Build-an-ML-Pipeline-Starter.git",   # must be the subproject directory
+                entry_point="basic_cleaning",       # defined in src/basic_cleaning/MLproject
+                version ='main',
+                parameters={
+                    "input_artifact": "sample.csv:latest",
+                    "output_artifact": "clean_sample.csv",
+                    "output_type": "clean_data",
+                    "output_description": "Data with outliers removed",
+                    "min_price": config["etl"]["min_price"],
+                    "max_price": config["etl"]["max_price"],
+                },
+            )
 
         if "data_check" in active_steps:
             ##################
